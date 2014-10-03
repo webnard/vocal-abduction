@@ -1,2 +1,5 @@
 bower_components
 node_modules
+app/assets/sprites/small/*.png
+app/assets/sprites/medium/*.png
+app/assets/sprites/large/*.png
