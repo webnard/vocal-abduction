@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   var BUILD_DIR = 'build/';
   var SPRITE_DIR = ASSET_DIR + 'sprites/';
   var SPRITE_PDF = ASSET_DIR + 'sprites/sprites.pdf'
-  var DEFAULT_SPRITE_SCALE = 90; // DPI defaults to 90 in Inkscape
+  var SPRITE_SIZE = 90; // DPI. Defaults to 90 in Inkscape
 
   var pdfmap = [ // map filenames to page numbers in the sprites.pdf file
     'cow-aerial.pdf:1',
@@ -55,6 +55,56 @@ module.exports = function(grunt) {
         }]
       }
     },
+    texturepacker: {
+      small: {
+        options: {
+          trimMode: 'trim',
+          output: {
+            sheet: {
+              file: SPRITE_DIR + 'small/sheet.png',
+              format: 'png'
+            },
+            data: {
+              file: SPRITE_DIR + 'small/sheet.json',
+              format: 'json'
+            }
+          }
+        },
+        src: [SPRITE_DIR + 'small/*.png'],
+      },
+      medium: {
+        options: {
+          trimMode: 'trim',
+          output: {
+            sheet: {
+              file: SPRITE_DIR + 'medium/sheet.png',
+              format: 'png'
+            },
+            data: {
+              file: SPRITE_DIR + 'medium/sheet.json',
+              format: 'json'
+            }
+          }
+        },
+        src: [SPRITE_DIR + 'medium/*.png'],
+      },
+      large: {
+        options: {
+          trimMode: 'trim',
+          output: {
+            sheet: {
+              file: SPRITE_DIR + 'large/sheet.png',
+              format: 'png'
+            },
+            data: {
+              file: SPRITE_DIR + 'large/sheet.json',
+              format: 'json'
+            }
+          }
+        },
+        src: [SPRITE_DIR + 'large/*.png'],
+      }
+    },
     clean: {
       build: [BUILD_DIR+'/*']
     }
@@ -63,14 +113,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-inkscape');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-texturepacker');
 
   grunt.registerTask('sprites',
     pdfmap.map(function(item){return 'shell:pdftk:'+item})
     .concat([
-        'inkscape:sprites:small:45',
-        'inkscape:sprites:medium:90',
-        'inkscape:sprites:large:180',
-        'clean:build'
+        'inkscape:sprites:small:' + SPRITE_SIZE/2,
+        'inkscape:sprites:medium:' + SPRITE_SIZE,
+        'inkscape:sprites:large:' + SPRITE_SIZE*2,
+        'texturepacker:small',
+        'texturepacker:medium',
+        'texturepacker:large',
+        'clean:build',
+        'clean:sprites'
     ])
   );
   grunt.registerTask('default', 'wiredep')
