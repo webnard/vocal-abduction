@@ -56,53 +56,26 @@ module.exports = function(grunt) {
       }
     },
     texturepacker: {
-      small: {
+      sprites: {
         options: {
           trimMode: 'Trim',
           output: {
             sheet: {
-              file: SPRITE_DIR + 'small/sheet.png',
+              file: SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png',
               format: 'png'
             },
             data: {
-              file: SPRITE_DIR + 'small/sheet.json',
+              file: SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.json',
               format: 'json'
             }
           }
         },
-        src: [BUILD_DIR + 'small/*.png'],
-      },
-      medium: {
-        options: {
-          trimMode: 'Trim',
-          output: {
-            sheet: {
-              file: SPRITE_DIR + 'medium/sheet.png',
-              format: 'png'
-            },
-            data: {
-              file: SPRITE_DIR + 'medium/sheet.json',
-              format: 'json'
-            }
-          }
-        },
-        src: [BUILD_DIR + 'medium/*.png'],
-      },
-      large: {
-        options: {
-          trimMode: 'Trim',
-          output: {
-            sheet: {
-              file: SPRITE_DIR + 'large/sheet.png',
-              format: 'png'
-            },
-            data: {
-              file: SPRITE_DIR + 'large/sheet.json',
-              format: 'json'
-            }
-          }
-        },
-        src: [BUILD_DIR + 'large/*.png'],
+        src: [BUILD_DIR + '<%= grunt.task.current.args[0] %>/*.png'],
+      }
+    },
+    'imagemagick-convert': {
+      trimSprites: {
+        args: [SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png', '-trim', '-quality', '100', SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png' ]
       }
     },
     clean: {
@@ -114,6 +87,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-texturepacker');
+  grunt.loadNpmTasks('grunt-imagemagick');
 
   // TODO: minify images
 
@@ -123,9 +97,12 @@ module.exports = function(grunt) {
         'inkscape:sprites:small:' + SPRITE_SIZE/2,
         'inkscape:sprites:medium:' + SPRITE_SIZE,
         'inkscape:sprites:large:' + SPRITE_SIZE*2,
-        'texturepacker:small',
-        'texturepacker:medium',
-        'texturepacker:large',
+        'texturepacker:sprites:small',
+        'texturepacker:sprites:medium',
+        'texturepacker:sprites:large',
+        'imagemagick-convert:trimSprites:small',
+        'imagemagick-convert:trimSprites:medium',
+        'imagemagick-convert:trimSprites:large',
         'clean:build'
     ])
   );
