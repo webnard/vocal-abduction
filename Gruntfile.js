@@ -46,7 +46,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           src: [BUILD_DIR + '*.pdf'],
-          dest: SPRITE_DIR + '<%= grunt.task.current.args[0] %>/',
+          dest: BUILD_DIR + '<%= grunt.task.current.args[0] %>/',
           ext: '.png',
           rename: function(dest, matchedSrcPath, options) {
             var newpath = dest + '/' + matchedSrcPath.replace(BUILD_DIR,'');
@@ -58,7 +58,7 @@ module.exports = function(grunt) {
     texturepacker: {
       small: {
         options: {
-          trimMode: 'trim',
+          trimMode: 'Trim',
           output: {
             sheet: {
               file: SPRITE_DIR + 'small/sheet.png',
@@ -70,11 +70,11 @@ module.exports = function(grunt) {
             }
           }
         },
-        src: [SPRITE_DIR + 'small/*.png'],
+        src: [BUILD_DIR + 'small/*.png'],
       },
       medium: {
         options: {
-          trimMode: 'trim',
+          trimMode: 'Trim',
           output: {
             sheet: {
               file: SPRITE_DIR + 'medium/sheet.png',
@@ -86,11 +86,11 @@ module.exports = function(grunt) {
             }
           }
         },
-        src: [SPRITE_DIR + 'medium/*.png'],
+        src: [BUILD_DIR + 'medium/*.png'],
       },
       large: {
         options: {
-          trimMode: 'trim',
+          trimMode: 'Trim',
           output: {
             sheet: {
               file: SPRITE_DIR + 'large/sheet.png',
@@ -102,7 +102,7 @@ module.exports = function(grunt) {
             }
           }
         },
-        src: [SPRITE_DIR + 'large/*.png'],
+        src: [BUILD_DIR + 'large/*.png'],
       }
     },
     clean: {
@@ -115,6 +115,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-texturepacker');
 
+  // TODO: minify images
+
   grunt.registerTask('sprites',
     pdfmap.map(function(item){return 'shell:pdftk:'+item})
     .concat([
@@ -124,8 +126,7 @@ module.exports = function(grunt) {
         'texturepacker:small',
         'texturepacker:medium',
         'texturepacker:large',
-        'clean:build',
-        'clean:sprites'
+        'clean:build'
     ])
   );
   grunt.registerTask('default', 'wiredep')
