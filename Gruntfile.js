@@ -59,6 +59,7 @@ module.exports = function(grunt) {
       sprites: {
         options: {
           trimMode: 'Trim',
+          disableRotation: true,
           output: {
             sheet: {
               file: SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png',
@@ -90,6 +91,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-imagemagick');
 
   // TODO: minify images
+  // TODO: texturepacked images coming back with a PNG offset
 
   grunt.registerTask('sprites',
     pdfmap.map(function(item){return 'shell:pdftk:'+item})
@@ -100,9 +102,11 @@ module.exports = function(grunt) {
         'texturepacker:sprites:small',
         'texturepacker:sprites:medium',
         'texturepacker:sprites:large',
-        'imagemagick-convert:trimSprites:small',
+        // TODO: Trimming sprites was interfering with the placement of sprites
+        /*'imagemagick-convert:trimSprites:small',
         'imagemagick-convert:trimSprites:medium',
         'imagemagick-convert:trimSprites:large',
+        */
         'clean:build'
     ])
   );
