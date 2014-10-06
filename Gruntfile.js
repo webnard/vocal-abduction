@@ -77,6 +77,26 @@ module.exports = function(grunt) {
     'imagemagick-convert': {
       trimSprites: {
         args: [SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png', '-trim', '-quality', '100', SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png' ]
+      },
+      shift2px: { // to make up for texturepacker's PNG oFFs chunk
+        args: [
+          SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png',
+          '-virtual-pixel',
+          'background',
+          '-distort',
+          'Affine',
+          '2,2 4,4',
+          SPRITE_DIR + '<%= grunt.task.current.args[0] %>/sheet.png'
+        ]
+      }
+    },
+    img: {
+      sprites: {
+        src: [
+          SPRITE_DIR + '/small/sheet.png',
+          SPRITE_DIR + '/medium/sheet.png',
+          SPRITE_DIR + '/large/sheet.png'
+        ]
       }
     },
     clean: {
@@ -89,9 +109,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-texturepacker');
   grunt.loadNpmTasks('grunt-imagemagick');
-
-  // TODO: minify images
-  // TODO: texturepacked images coming back with a PNG offset
+  grunt.loadNpmTasks('grunt-img');
 
   grunt.registerTask('sprites',
     pdfmap.map(function(item){return 'shell:pdftk:'+item})
@@ -102,11 +120,15 @@ module.exports = function(grunt) {
         'texturepacker:sprites:small',
         'texturepacker:sprites:medium',
         'texturepacker:sprites:large',
-        // TODO: Trimming sprites was interfering with the placement of sprites
-        /*'imagemagick-convert:trimSprites:small',
+        'imagemagick-convert:shift2px:small',
+        'imagemagick-convert:shift2px:medium',
+        'imagemagick-convert:shift2px:large',
+        /*
+        'imagemagick-convert:trimSprites:small',
         'imagemagick-convert:trimSprites:medium',
         'imagemagick-convert:trimSprites:large',
         */
+        'img:sprites',
         'clean:build'
     ])
   );
