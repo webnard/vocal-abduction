@@ -1,7 +1,4 @@
 bower_components
 node_modules
-app/assets/sprites/small
-app/assets/sprites/medium
-app/assets/sprites/large
 build
 npm-debug.log
