@@ -30,7 +30,6 @@
   "dependencies": {
     "apeworm": "~0.0.2",
     "pixi.js": "~1.6.1",
-    "numericjs": "~1.2.6",
-    "tinycolor": "~1.0.0"
+    "numericjs": "~1.2.6"
   }
 }

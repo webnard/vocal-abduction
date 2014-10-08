@@ -63,12 +63,11 @@ window.VowelWorm.Game = function( options ) {
    * @const
    * @private
    */
-  var SPRITE_SHEET = new PIXI.SpriteSheetLoader(GRAPHICS_PATH + '/sprites-small.json');
+  var SPRITE_SHEET = new PIXI.SpriteSheetLoader(GRAPHICS_PATH + '/sheet.json');
   SPRITE_SHEET.addEventListener('loaded', function(){
     ready = true;
   });
   SPRITE_SHEET.load();
-  window.ss = SPRITE_SHEET;
 
   /**
    * Contains all instances of worms for this game
@@ -108,7 +107,7 @@ window.VowelWorm.Game = function( options ) {
   game.addWorm = function(worm) {
    var container = {};
    container.worm = worm;
-   container.circles = [];
+   container.saucer = null;
    worms.push(container);
   };
 
@@ -118,29 +117,30 @@ window.VowelWorm.Game = function( options ) {
   game.drawWorm = function(){
     var current_color = 0x00FF00;
     worms.forEach(function(container) {
-      var worm = container.worm,
-          circles = container.circles;
-
+      var worm = container.worm;
       var coords = getCoords(worm);
 
-      if(coords!==null){
-        var doRender = true;
-        
-        var x = coords.x;
-        var y = coords.y;
-
-        var circle = new PIXI.Sprite.fromFrame("saucer1");
-        circle.position.x = x;
-        circle.position.y = y;
-        //circle.tint = current_color;
-
-        circles.push(circle);
-        
-        game._stage.addChild(circle);
+      if(!coords) {
+        if(container.saucer && game._stage.children.indexOf(container.saucer) !== -1) {
+          game._stage.removeChild(container.saucer);
+        }
+        return;
       }
-      current_color = getNextColor(current_color);  
+
+      if(!container.saucer) {
+        container.saucer = new Abduction.Saucer();
+        
+        // TODO: remove this
+        window.saucer = container.saucer;
+      }
+
+      if(game._stage.children.indexOf(container.saucer) === -1) {
+        game._stage.addChild(container.saucer);
+      }
+
+      container.saucer.position.x = coords.x;
+      container.saucer.position.y = coords.y;
     });
-    fadeOldCircles();
     game._renderer.render(game._stage);
   };
 
@@ -225,40 +225,6 @@ window.VowelWorm.Game = function( options ) {
     return true;
   };
 
-  var fadeOldCircles = function(){
-    worms.forEach(function(container) {
-      var circles = container.circles;
-      for(var i=0; i<circles.length; i++){
-        var obj = circles[i];
-        
-        obj.alpha = obj.alpha - .2;
-        
-        if(obj.alpha <= 0){
-          game._stage.removeChild(obj);
-          circles.splice(i, 1);
-          i--;
-        }
-      }
-    });
-  };
-
-  //Color Functions
-  //Converts an integer representing a color to an integer representing a color 45 degrees away
-  var getNextColor = function(old_color){
-    if(typeof old_color == 'number'){
-      old_color = old_color.toString(16);
-      //Pad with 0's if necessary
-      while(old_color.length<6){
-        old_color = "0" + old_color;
-      }
-    }
-
-    old_color = new tinycolor(old_color);
-    var new_color = old_color.spin(45).toHex();
-    new_color = parseInt(new_color,16);
-    return new_color;
-  };
- 
   /**
    * Fills the IPA Chart. A constructor helper method.
    */
