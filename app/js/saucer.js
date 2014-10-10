@@ -9,6 +9,12 @@ var Abduction = Abduction || {};
 Abduction.Saucer = function(options) {
   var _this = this,
       _sprite,
+      /**
+       * The color of the ship. @see Abduction.Saucer.Color
+       * @name color
+       * @memberof Abduction.Beam
+       * @type number
+       */
       _color,
       options = options || {};
 
@@ -43,7 +49,6 @@ Abduction.Saucer = function(options) {
   };
 
   function _init() {
-    Abduction.Saucer._index++;
     var color_count = Object.keys(Abduction.Saucer.Color).length;
     _color = options.color || (Abduction.Saucer._index % color_count)+1;
 
@@ -52,6 +57,8 @@ Abduction.Saucer = function(options) {
     _sprite.anchor.y = 0.5;
 
     _this.addChild(_sprite);
+
+    Abduction.Saucer._index++;
   };
 
   Object.defineProperties(_this, {
@@ -59,6 +66,10 @@ Abduction.Saucer = function(options) {
       enumerable: true,
       get: function() { return _beam; },
       set: setBeam
+    },
+    color: {
+      enumerable: true,
+      get: function() { return _color; }
     }
   });
 

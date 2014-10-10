@@ -105,10 +105,14 @@ window.VowelWorm.Game = function( options ) {
    * @name addWorm
    */
   game.addWorm = function(worm) {
-   var container = {};
-   container.worm = worm;
-   container.saucer = null;
-   worms.push(container);
+    var container = {};
+    container.worm = worm;
+    worms.push(container);
+
+    SPRITE_SHEET.addEventListener('loaded', function(){
+      container.saucer = new Abduction.Saucer();
+      container.beam = new Abduction.Beam();
+    });
   };
 
   /**
@@ -125,13 +129,6 @@ window.VowelWorm.Game = function( options ) {
           game._stage.removeChild(container.saucer);
         }
         return;
-      }
-
-      if(!container.saucer) {
-        container.saucer = new Abduction.Saucer();
-        
-        // TODO: remove this
-        window.saucer = container.saucer;
       }
 
       if(game._stage.children.indexOf(container.saucer) === -1) {
