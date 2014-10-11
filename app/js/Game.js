@@ -113,6 +113,11 @@ define(['Saucer', 'Beam'], function(Saucer, Beam) {
       SPRITE_SHEET.addEventListener('loaded', function(){
         container.saucer = new Saucer();
         container.beam = new Beam();
+        // TODO: remove
+        game._stage.addChild(container.beam);
+        container.beam.x = 0;
+        container.beam.y = 0;
+        window.beam = container.beam;
       });
     };
 

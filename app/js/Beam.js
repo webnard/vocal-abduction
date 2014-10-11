@@ -10,7 +10,10 @@ define(['Color'], function(Color) {
    */
   function Beam(options) {
     var _this = this,
-        _sprite,
+        _ship = null,
+        _beam = new PIXI.Sprite.fromFrame('tractorBeam-16.png'),
+        _cow = new PIXI.Sprite.fromFrame('cow.png'),
+
         /**
          * The color of the ship. @see Color
          * @name color
@@ -19,7 +22,7 @@ define(['Color'], function(Color) {
          */
         _color,
         /**
-         * A number between 0 and 100, representing how close the beam is to the cow
+         * A number between 1 and 100, representing how close the beam is to the cow
          * @private
          * @memberof Beam
          * @type number
@@ -27,7 +30,7 @@ define(['Color'], function(Color) {
         _distance,
         /**
          * Whether or not the beam should be descending
-         * @name enabled
+         * @name on
          * @memberof Beam
          * @type boolean
          */
@@ -43,7 +46,10 @@ define(['Color'], function(Color) {
           4: 650,
           5: 500
         },
+        _ascentInterval = null,
+        _descentInterval = null,
         options = options || {},
+
         /**
          * The speed that the tractor beam moves
          * @memberof Beam
@@ -60,8 +66,23 @@ define(['Color'], function(Color) {
 
       _color = options.color || Color[key];
 
-      _sprite = new PIXI.Sprite.fromFrame(_color + 'Saucer.png');
-      _this.addChild(_sprite);
+      _ship = new PIXI.Sprite.fromFrame(_color + 'Saucer.png');
+     
+      // tall enough to fit the cow, the ship, with room for the beam
+      var height = (_cow.height + _ship.height)*3;
+      
+      _this.addChild(_ship);
+
+      _cow.anchor.x = 0.5;
+      _cow.y = height - _cow.height;
+      _cow.x = _ship.width/2;
+      _this.addChild(_cow);
+
+      _beam.anchor.x = 0.5;
+      _beam.y = _ship.height - 5;
+      _beam.x = _ship.width/2;
+      _this.addChild(_beam);
+      _beam.height *= 20;
       
       Beam._index++;
     };
@@ -91,6 +112,14 @@ define(['Color'], function(Color) {
         throw "Tractor beam speed must be between 1-5. Given: " + value;
       }
       _speed = speed;
+
+      if(_enabled) {
+        _ascentInterval = setInterval(_ascend, _this.speed);
+      }
+      else
+      {
+        _descentInterval = setInterval(_descend, _this.speed);
+      }
     };
 
     /**
@@ -107,6 +136,26 @@ define(['Color'], function(Color) {
       }
     };
 
+    function _ascend() {};
+
+    function _descend() {};
+
+    /**
+     * @param boolean value Whether or not the beam should be enabled
+     */
+    function _setEnabled(value) {
+      if(value == _enabled) {
+        return;
+      }
+
+      if(!value) {
+        _ascentInterval = setInterval(_ascend, _this.speed);
+      }
+      else {
+        _descentInterval = setInterval(_descend, _this.speed);
+      }
+    };
+
     Object.defineProperties(_this, {
       color: {
         enumerable: true,
@@ -117,6 +166,11 @@ define(['Color'], function(Color) {
         get: _getSpeed,
         set: _setSpeed
       },
+      on: {
+        enumerable: true,
+        get: function() { return _enabled; },
+        set: _setEnabled
+      }
     });
 
     _init();
