@@ -11,7 +11,7 @@ define(['Color'], function(Color) {
   function Beam(options) {
     var _this = this,
         _ship = null,
-        _beam = new PIXI.Sprite.fromFrame('tractorBeam-16.png'),
+        _beam = new PIXI.Sprite.fromFrame('tractorBeam.png'),
         _cow = new PIXI.Sprite.fromFrame('cow.png'),
 
         /**
