@@ -1,4 +1,7 @@
 define(['Color'], function(Color) {
+  var MAX_BEAM_DISTANCE = 120; // percentage, between cow and ship
+  var MIN_BEAM_DISTANCE = 0;   // percentage, between cow and ship
+
   /**
    * The saucer profile that measures how close a player is to abducting a cow
    * @param {Object=} options Configuration options
@@ -22,12 +25,12 @@ define(['Color'], function(Color) {
          */
         _color,
         /**
-         * A number between 1 and 100, representing how close the beam is to the cow
+         * A number between MIN_BEAM_DISTANCE and MAX_BEAM_DISTANCE, representing how close the beam is to the cow
          * @private
          * @memberof Beam
          * @type number
          */
-        _distance,
+        _distance = MIN_BEAM_DISTANCE,
         /**
          * Whether or not the beam should be descending
          * @name on
@@ -48,6 +51,11 @@ define(['Color'], function(Color) {
         },
         _ascentInterval = null,
         _descentInterval = null,
+        /**
+         * The maximum height the beam can be before it touches the cow.
+         * @type number
+         */
+        _maxBeamHeight = null,
         options = options || {},
 
         /**
@@ -81,22 +89,30 @@ define(['Color'], function(Color) {
       _beam.anchor.x = 0.5;
       _beam.y = _ship.height - 5;
       _beam.x = _ship.width/2;
+      _beam.height = 0;
+      var blurFilter = new PIXI.BlurFilter();
+      blurFilter.blur = 5;
+      _beam.filters = [blurFilter];
+      _beam.opacity = 0.7; 
       _this.addChild(_beam);
-      _beam.height *= 20;
+
+      _maxBeamHeight = height - _cow.height - _ship.height;
       
       Beam._index++;
     };
 
     /**
      * Sets the distance of the tractor beam
-     * @param number value Must be between 0 and 100
+     * @param number value Must be between MIN_BEAM_DISTANCE and MAX_BEAM_DISTANCE
      * @see score
      */
     function _setDistance(value) {
-      if(Number.parseInt(value) < 0 || Number.parseInt(value) > 100) {
-        throw "Tractor beam distance must be between 0-100. Given: " + value;
+      if(Number.parseInt(value) < MIN_BEAM_DISTANCE || Number.parseInt(value) > MAX_BEAM_DISTANCE) {
+        throw "Tractor beam distance must be between " + MIN_BEAM_DISTANCE + 
+          '-' + MAX_BEAM_DISTANCE + ". Given: " + value;
       }
       _distance = value;
+      _beam.height = (_distance/100)*_maxBeamHeight;
     };
     
     /**
@@ -112,15 +128,25 @@ define(['Color'], function(Color) {
         throw "Tractor beam speed must be between 1-5. Given: " + value;
       }
       _speed = speed;
+      _resetMotion();
+    };
+
+    /**
+     * Resets tractor beam's motion, which depends on whether or not the beam
+     * is enabled and the current speed of the beam
+     */
+    function _resetMotion() {
+      clearInterval(_descentInterval);
+      clearInterval(_ascentInterval);
 
       if(_enabled) {
-        _ascentInterval = setInterval(_ascend, _this.speed);
+        _descentInterval = setInterval(_descend, _this.speed);
       }
       else
       {
-        _descentInterval = setInterval(_descend, _this.speed);
+        _ascentInterval = setInterval(_ascend, _this.speed);
       }
-    };
+    }
 
     /**
      * Gets the speed of the tractor beam
@@ -136,9 +162,15 @@ define(['Color'], function(Color) {
       }
     };
 
-    function _ascend() {};
+    function _ascend() {
+      if(_distance <= MIN_BEAM_DISTANCE) { return; } 
+      _setDistance(_distance-1);
+    };
 
-    function _descend() {};
+    function _descend() {
+      if(_distance >= MAX_BEAM_DISTANCE) { return; } 
+      _setDistance(_distance+1);
+    };
 
     /**
      * @param boolean value Whether or not the beam should be enabled
@@ -147,13 +179,8 @@ define(['Color'], function(Color) {
       if(value == _enabled) {
         return;
       }
-
-      if(!value) {
-        _ascentInterval = setInterval(_ascend, _this.speed);
-      }
-      else {
-        _descentInterval = setInterval(_descend, _this.speed);
-      }
+      _enabled = !!value;
+      _resetMotion();
     };
 
     Object.defineProperties(_this, {
