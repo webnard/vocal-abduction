@@ -1,4 +1,4 @@
-define(function() {
+define(['Container'], function(Container) {
   /**
    * Percentage, between cow and ship, that the beam should end at
    * @const
@@ -111,6 +111,10 @@ define(function() {
     function _init() {
       // tall enough to fit the cow, the ship, with room for the beam
       var height = (_cow.height + _ship.height)*2.5;
+
+      var box = new Container('Cow Meter', _ship.width, height);
+
+      _this.addChild(box);
       
       _cow.anchor.x = 0.5;
       _cow.y = height - _cow.height;
