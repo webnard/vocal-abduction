@@ -4,7 +4,7 @@ define(['Container'], function(Container) {
    * @const
    * @type number
    */
-  var MAX_BEAM_DISTANCE = 108;
+  var MAX_BEAM_DISTANCE = 100;
   /**
    * Percentage, between ship and cow, that the beam should start at
    * @const
@@ -109,29 +109,39 @@ define(['Container'], function(Container) {
     PIXI.DisplayObjectContainer.call(_this);
 
     function _init() {
-      // tall enough to fit the cow, the ship, with room for the beam
-      var height = (_cow.height + _ship.height)*2.5;
+      var pad_x = 10;
 
-      var box = new Container('Cow Meter', _ship.width, height);
+      // tall enough to fit the cow, the ship, with room for the beam
+
+      var box_width = _ship.width + pad_x;
+      var box_height = (_cow.height + _ship.height)*2.5 + 5;
+
+      var box = new Container('Cow Meter', box_width, box_height);
+
+      var height = box_height - box.textHeight;
 
       _this.addChild(box);
-      
+
       _cow.anchor.x = 0.5;
       _cow.y = height - _cow.height;
-      _cow.x = _ship.width/2;
-      _this.addChild(_cow);
+      _cow.x = box_width/2;
+
+      _ship.anchor.x = 0.5;
+      _ship.x = box_width/2;
+      _ship.y = box.textHeight;
 
       _beam.anchor.x = 0.5;
-      _beam.y = _ship.height - 25;
-      _beam.x = _ship.width/2;
+      _beam.y = _ship.y + _ship.height - 10;
+      _beam.x = box_width/2;
       _beam.height = 0;
       _beam.opacity = 0.7;
-      _this.addChild(_beam);
 
-      _maxBeamHeight = height - _cow.height - _ship.height;
-      
+      _maxBeamHeight = height - _cow.height - _beam.y;
+
       _this.addChild(_ship);
-      
+      _this.addChild(_beam);
+      _this.addChild(_cow);
+
       Beam._index++;
 
       // so we can dispatch events (@see _retrieveCow)
@@ -151,7 +161,7 @@ define(['Container'], function(Container) {
       _distance = value;
       _beam.height = (_distance/100)*_maxBeamHeight;
     };
-    
+
     /**
      * Sets the speed of the tractor beam
      * @param number value A number, from 1 to 5, representing how fast the
@@ -228,7 +238,7 @@ define(['Container'], function(Container) {
     };
 
     /**
-     * Used when a beam hits the cow 
+     * Used when a beam hits the cow
      */
     function _retrieveCow() {
       _paused = true;
