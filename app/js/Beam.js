@@ -1,4 +1,4 @@
-define(['Container'], function(Container) {
+define(['Container', 'NumberStyle'], function(Container, NumberStyle) {
   /**
    * Percentage, between cow and ship, that the beam should end at
    * @const
@@ -61,8 +61,22 @@ define(['Container'], function(Container) {
          * If this is true, tractor beam will neither ascend nor descend.
          * The beam will pause momentarily when the cow has been hit.
          * @type boolean
+         * @private
          */
         _paused = false,
+
+        /**
+         * How many cows the user has retrieved
+         * @type number
+         * @name points
+         * @memberof Beam
+         */
+        _points = 0,
+
+        /**
+         * The holder for the points
+         */
+        _pointsText = new PIXI.Text(_points, NumberStyle),
 
         /**
          * A number between MIN_BEAM_DISTANCE and MAX_BEAM_DISTANCE, representing how close the beam is to the cow
@@ -138,9 +152,15 @@ define(['Container'], function(Container) {
 
       _maxBeamHeight = height - _cow.height - _beam.y;
 
+      _pointsText.y = _cow.y + _cow.height + 5;
+      _pointsText.x = box.width/2 - _pointsText.width/2 + box.getBounds().x;
+
       _this.addChild(_ship);
       _this.addChild(_beam);
       _this.addChild(_cow);
+      _this.addChild(_pointsText);
+
+      window.t = _pointsText;
 
       Beam._index++;
 
@@ -167,6 +187,7 @@ define(['Container'], function(Container) {
      * @param number value A number, from 1 to 5, representing how fast the
      * tractor beam should move
      * @see speed
+     * @private
      */
     function _setSpeed(value) {
       var speed = _speeds[value];
@@ -177,6 +198,19 @@ define(['Container'], function(Container) {
       _speed = speed;
       _resetMotion();
     };
+
+    /**
+     * Sets the total score
+     * @see points
+     * @private
+     */
+    function _setPoints(points) {
+      if(isNaN(parseInt(points, 10))) {
+        return;
+      }
+      _points = points;;
+      _pointsText.setText(""+points);
+    }
 
     /**
      * Resets tractor beam's motion, which depends on whether or not the beam
@@ -248,6 +282,7 @@ define(['Container'], function(Container) {
         _cow.tint = 0xFFFFFF;
         _paused = false;
         _setDistance(MIN_BEAM_DISTANCE);
+        _this.points++;
         _this.emit({type: 'abduct'});
       }, COW_GET_DELAY);
     };
@@ -266,6 +301,11 @@ define(['Container'], function(Container) {
         enumerable: true,
         get: function() { return _enabled; },
         set: _setEnabled
+      },
+      points: {
+        enumerable: true,
+        get: function() { return _points; },
+        set: _setPoints
       }
     });
 
